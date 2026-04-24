@@ -35,6 +35,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Middleware to collapse double slashes in URLs
+app.use((req, res, next) => {
+  req.url = req.url.replace(/\/\/+/g, '/');
+  next();
+});
+
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
   .then(() => {
