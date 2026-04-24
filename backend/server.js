@@ -75,6 +75,29 @@ app.get('/api/health/routes', (req, res) => {
 });
 
 // MOVE FLASHCARD ROUTES HERE FOR PRIORITY
+// GET version for browser testing
+app.get('/api/flashcards/generate', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Flashcard generation endpoint is ALIVE!',
+    instruction: 'This endpoint requires a POST request with a topic in the body.',
+    usage: 'POST /api/flashcards/generate { "topic": "your topic" }'
+  });
+});
+
+// Alias for /api/revision
+app.get('/api/revision', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Revision API is alive!',
+    endpoints: {
+      generate: '/api/flashcards/generate (POST)',
+      list: '/api/flashcards (GET)',
+      stats: '/api/progress (GET)'
+    }
+  });
+});
+
 // Generate flashcards using AI
 app.post('/api/flashcards/generate', auth, async (req, res) => {
   console.log(`🎴 Flashcard generation request for: ${req.body.topic}`);
