@@ -37,7 +37,17 @@ app.use(express.json());
 
 // Middleware to collapse double slashes in URLs
 app.use((req, res, next) => {
+  const oldUrl = req.url;
   req.url = req.url.replace(/\/\/+/g, '/');
+  if (oldUrl !== req.url) {
+    console.log(`🔀 URL Normalized: ${oldUrl} -> ${req.url}`);
+  }
+  next();
+});
+
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`📡 [${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
@@ -1056,6 +1066,7 @@ app.get('/api/progress', auth, async (req, res) => {
 
 // Generate flashcards using AI
 app.post('/api/flashcards/generate', auth, async (req, res) => {
+  console.log(`🎴 Flashcard generation request for: ${req.body.topic}`);
   try {
     const { topic, count = 10, language = 'en', refresh = false } = req.body;
     
@@ -1892,9 +1903,11 @@ app.get('/api/health/routes', (req, res) => {
 
 // Catch all other routes
 app.use('*', (req, res) => {
+  console.log(`❌ 404 Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     success: false,
     message: 'Route not found',
+    method: req.method,
     path: req.originalUrl
   });
 });
