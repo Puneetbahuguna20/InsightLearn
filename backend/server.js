@@ -74,6 +74,133 @@ app.get('/api/health/routes', (req, res) => {
   res.json({ success: true, count: routes.length, routes });
 });
 
+// MOVE FLASHCARD ROUTES HERE FOR PRIORITY
+// Generate flashcards using AI
+app.post('/api/flashcards/generate', auth, async (req, res) => {
+  console.log(`🎴 Flashcard generation request for: ${req.body.topic}`);
+  try {
+    const { topic, count = 10, language = 'en', refresh = false } = req.body;
+    
+    if (!topic) {
+      return res.status(400).json({ success: false, message: 'Topic is required' });
+    }
+
+    const normalizedTopic = topic.toLowerCase().trim();
+    const escapedTopic = normalizedTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Helper to get exactly 10 cards with 3 easy, 5 medium, 2 hard distribution from local array
+    const getDistributedCards = (allCards) => {
+      if (allCards.length === 0) return [];
+      
+      const easy = allCards.filter(c => c.difficulty === 'easy').sort(() => Math.random() - 0.5);
+      const medium = allCards.filter(c => c.difficulty === 'medium').sort(() => Math.random() - 0.5);
+      const hard = allCards.filter(c => c.difficulty === 'hard').sort(() => Math.random() - 0.5);
+      
+      let selected = [
+        ...easy.slice(0, 3),
+        ...medium.slice(0, 5),
+        ...hard.slice(0, 2)
+      ];
+      
+      if (selected.length < 10 && allCards.length > selected.length) {
+        const selectedIds = new Set(selected.map(s => s._id.toString()));
+        const remaining = allCards.filter(c => !selectedIds.has(c._id.toString()));
+        const countNeeded = Math.min(10 - selected.length, remaining.length);
+        selected.push(...remaining.sort(() => Math.random() - 0.5).slice(0, countNeeded));
+      }
+      
+      return selected.sort(() => Math.random() - 0.5);
+    };
+
+    if (!refresh) {
+      let existingCards = await Flashcard.find({
+        user: req.user._id,
+        topic: { $regex: new RegExp(`^${escapedTopic}$`, 'i') }
+      });
+
+      if (existingCards.length >= 10) {
+        console.log(`✅ Found ${existingCards.length} existing flashcards for: ${topic}. Picking 10.`);
+        const distributed = getDistributedCards(existingCards);
+        return res.json({
+          success: true,
+          data: {
+            topic: existingCards[0].topic,
+            flashcards: distributed
+          },
+          cached: true
+        });
+      }
+    }
+
+    console.log(`🧠 Generating ${refresh ? 'MORE' : 'NEW'} flashcards for: ${topic}`);
+    const AIContentGenerator = require('./services/aiContentGenerator');
+    const generator = new AIContentGenerator();
+    
+    const promptOverride = `Generate exactly 10 flashcards: 3 easy, 5 medium, and 2 hard ones about the topic: "${topic}".`;
+    const flashcardData = await generator.generateFlashcards(topic, 10, language, promptOverride);
+    
+    const savedCards = [];
+    try {
+      for (const card of flashcardData.flashcards) {
+        const newCard = new Flashcard({
+          user: req.user._id,
+          topic: flashcardData.topic || topic,
+          front: card.front,
+          back: card.back,
+          difficulty: card.difficulty || 'medium'
+        });
+        const saved = await newCard.save();
+        savedCards.push(saved);
+      }
+      console.log(`💾 ${savedCards.length} new flashcards saved to database`);
+
+      const allCards = await Flashcard.find({
+        user: req.user._id,
+        topic: { $regex: new RegExp(`^${escapedTopic}$`, 'i') }
+      });
+      
+      const distributed = getDistributedCards(allCards);
+      
+      return res.json({
+        success: true,
+        data: {
+          topic: flashcardData.topic || topic,
+          flashcards: distributed
+        }
+      });
+    } catch (saveError) {
+      console.warn('⚠️ Failed to save flashcard cache:', saveError.message);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        topic: flashcardData.topic || topic,
+        flashcards: flashcardData.flashcards
+      }
+    });
+  } catch (error) {
+    console.error('Flashcard generation error:', error);
+    res.status(500).json({ success: false, message: 'Failed to generate flashcards' });
+  }
+});
+
+// Get all user's flashcards
+app.get('/api/flashcards', auth, async (req, res) => {
+  try {
+    const { topic } = req.query;
+    const query = { user: req.user._id };
+    if (topic) query.topic = topic;
+    
+    const cards = await Flashcard.find(query).sort({ createdAt: -1 });
+    const stats = await Flashcard.getUserStats(req.user._id);
+    
+    res.json({ success: true, cards, stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch flashcards' });
+  }
+});
+
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
   .then(() => {
@@ -1082,236 +1209,6 @@ app.get('/api/progress', auth, async (req, res) => {
     res.json({ success: true, progress, stats, streak });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch progress' });
-  }
-});
-
-// ----- Flashcard Routes -----
-
-// Generate flashcards using AI
-app.post('/api/flashcards/generate', auth, async (req, res) => {
-  console.log(`🎴 Flashcard generation request for: ${req.body.topic}`);
-  try {
-    const { topic, count = 10, language = 'en', refresh = false } = req.body;
-    
-    if (!topic) {
-      return res.status(400).json({ success: false, message: 'Topic is required' });
-    }
-
-    const normalizedTopic = topic.toLowerCase().trim();
-    const escapedTopic = normalizedTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    // Helper to get exactly 10 cards with 3 easy, 5 medium, 2 hard distribution from local array
-    const getDistributedCards = (allCards) => {
-      if (allCards.length === 0) return [];
-      
-      const easy = allCards.filter(c => c.difficulty === 'easy').sort(() => Math.random() - 0.5);
-      const medium = allCards.filter(c => c.difficulty === 'medium').sort(() => Math.random() - 0.5);
-      const hard = allCards.filter(c => c.difficulty === 'hard').sort(() => Math.random() - 0.5);
-      
-      let selected = [
-        ...easy.slice(0, 3),
-        ...medium.slice(0, 5),
-        ...hard.slice(0, 2)
-      ];
-      
-      // If we don't have enough to fulfill the 3/5/2 but have more cards, just pick random ones to make it 10
-      if (selected.length < 10 && allCards.length > selected.length) {
-        const selectedIds = new Set(selected.map(s => s._id.toString()));
-        const remaining = allCards.filter(c => !selectedIds.has(c._id.toString()));
-        const countNeeded = Math.min(10 - selected.length, remaining.length);
-        selected.push(...remaining.sort(() => Math.random() - 0.5).slice(0, countNeeded));
-      }
-      
-      // If still less than 10 but we have cards, just return what we have (randomized)
-      return selected.sort(() => Math.random() - 0.5);
-    };
-
-    // 1. Check if cards for this topic already exist for this user (unless refresh is true)
-    if (!refresh) {
-      let existingCards = await Flashcard.find({
-        user: req.user._id,
-        topic: { $regex: new RegExp(`^${escapedTopic}$`, 'i') }
-      });
-
-      if (existingCards.length >= 10) {
-        console.log(`✅ Found ${existingCards.length} existing flashcards for: ${topic}. Picking 10.`);
-        const distributed = getDistributedCards(existingCards);
-        return res.json({
-          success: true,
-          data: {
-            topic: existingCards[0].topic,
-            flashcards: distributed
-          },
-          cached: true
-        });
-      }
-    }
-
-    console.log(`🧠 Generating ${refresh ? 'MORE' : 'NEW'} flashcards for: ${topic}`);
-    const AIContentGenerator = require('./services/aiContentGenerator');
-    const generator = new AIContentGenerator();
-    
-    // Explicitly ask AI for the distribution
-    const promptOverride = `Generate exactly 10 flashcards: 3 easy, 5 medium, and 2 hard ones about the topic: "${topic}".`;
-    const flashcardData = await generator.generateFlashcards(topic, 10, language, promptOverride);
-    
-    // 2. Save newly generated flashcards to DB for the user
-    const savedCards = [];
-    try {
-      for (const card of flashcardData.flashcards) {
-        const newCard = new Flashcard({
-          user: req.user._id,
-          topic: flashcardData.topic || topic,
-          front: card.front,
-          back: card.back,
-          difficulty: card.difficulty || 'medium'
-        });
-        const saved = await newCard.save();
-        savedCards.push(saved);
-      }
-      console.log(`💾 ${savedCards.length} new flashcards saved to database`);
-
-      // After saving, we pick exactly 10 with the distribution from ALL available cards
-      const allCards = await Flashcard.find({
-        user: req.user._id,
-        topic: { $regex: new RegExp(`^${escapedTopic}$`, 'i') }
-      });
-      
-      const distributed = getDistributedCards(allCards);
-
-      // ----- Restore: Generate Learn Content in background if it doesn't exist -----
-      try {
-        const normalizedQuery = (flashcardData.topic || topic).toLowerCase().trim();
-        const existingContent = await Content.findOne({
-          topic: { $regex: new RegExp(`^${normalizedQuery}$`, 'i') }
-        });
-
-        if (!existingContent) {
-          console.log(`🧠 Pre-generating learn content for: ${topic}`);
-          // Don't 'await' this so we don't block the flashcard response
-          generator.generateContent(topic, language).then(async (result) => {
-            const newCache = new Content({
-              title: result.title,
-              topic: normalizedQuery,
-              type: result.type || 'concept',
-              description: result.introduction || `Learning content for ${topic}`,
-              data: result,
-              isPublic: true
-            });
-            await newCache.save();
-            console.log('💾 Background learn content saved to database');
-          }).catch(err => console.warn('⚠️ Background content generation failed:', err.message));
-        }
-      } catch (contentErr) {
-        console.warn('⚠️ Non-critical: Failed to check/pre-generate learn content:', contentErr.message);
-      }
-      // -------------------------------------------------------------------------
-      
-      return res.json({
-        success: true,
-        data: {
-          topic: flashcardData.topic || topic,
-          flashcards: distributed
-        }
-      });
-    } catch (saveError) {
-      console.warn('⚠️ Failed to save flashcard cache:', saveError.message);
-    }
-
-    res.json({
-      success: true,
-      data: {
-        topic: flashcardData.topic || topic,
-        flashcards: flashcardData.flashcards
-      }
-    });
-  } catch (error) {
-    console.error('Flashcard generation error:', error);
-    res.status(500).json({ success: false, message: 'Failed to generate flashcards' });
-  }
-});
-
-// Create flashcard
-app.post('/api/flashcards', auth, async (req, res) => {
-  try {
-    const { topic, front, back, difficulty } = req.body;
-    
-    const flashcard = new Flashcard({
-      user: req.user._id,
-      topic,
-      front,
-      back,
-      difficulty
-    });
-    
-    await flashcard.save();
-    res.status(201).json({ success: true, flashcard });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to create flashcard' });
-  }
-});
-
-// Get user's flashcards due for review
-app.get('/api/flashcards/due', auth, async (req, res) => {
-  try {
-    const cards = await Flashcard.getDueCards(req.user._id, 20);
-    res.json({ success: true, cards });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to fetch flashcards' });
-  }
-});
-
-// Get all user's flashcards
-app.get('/api/flashcards', auth, async (req, res) => {
-  try {
-    const { topic } = req.query;
-    const query = { user: req.user._id };
-    if (topic) query.topic = topic;
-    
-    const cards = await Flashcard.find(query).sort({ createdAt: -1 });
-    const stats = await Flashcard.getUserStats(req.user._id);
-    
-    res.json({ success: true, cards, stats });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to fetch flashcards' });
-  }
-});
-
-// Review flashcard
-app.post('/api/flashcards/:id/review', auth, async (req, res) => {
-  try {
-    const { correct } = req.body;
-    
-    const flashcard = await Flashcard.findOne({
-      _id: req.params.id,
-      user: req.user._id
-    });
-    
-    if (!flashcard) {
-      return res.status(404).json({ success: false, message: 'Flashcard not found' });
-    }
-    
-    flashcard.reviewCount++;
-    flashcard.lastReviewed = new Date();
-    
-    if (correct) {
-      flashcard.correctCount++;
-      // Mark as mastered after 5 correct reviews
-      if (flashcard.correctCount >= 5) {
-        flashcard.mastered = true;
-      }
-    } else {
-      flashcard.incorrectCount++;
-    }
-    
-    // Simple spaced repetition: next review in 1, 3, 7, or 14 days based on correct streak
-    const days = [1, 3, 7, 14][Math.min(flashcard.correctCount, 3)];
-    flashcard.nextReview = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-    
-    await flashcard.save();
-    res.json({ success: true, flashcard });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to review flashcard' });
   }
 });
 
