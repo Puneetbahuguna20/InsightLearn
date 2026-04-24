@@ -51,6 +51,29 @@ app.use((req, res, next) => {
   next();
 });
 
+// Diagnostic route to check registered endpoints
+app.get('/api/health/routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods)
+      });
+    } else if (middleware.name === 'router') {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          routes.push({
+            path: handler.route.path,
+            methods: Object.keys(handler.route.methods)
+          });
+        }
+      });
+    }
+  });
+  res.json({ success: true, count: routes.length, routes });
+});
+
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
   .then(() => {
