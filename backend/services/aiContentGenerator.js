@@ -305,7 +305,11 @@ class AIContentGenerator {
 
       return JSON.parse(response.data.choices[0].message.content);
     } catch (error) {
-      console.error('Groq Flashcard Generation Error:', error);
+      if (error.response && error.response.status === 401) {
+        console.error('❌ Groq API Key is invalid or expired (401). Please check your Render environment variables.');
+      } else {
+        console.error('Groq Flashcard Generation Error:', error.message);
+      }
       throw error;
     }
   }
