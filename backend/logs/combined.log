@@ -1,0 +1,42 @@
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:52:45'
+}
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:52:45'
+}
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:53:29'
+}
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:54:28'
+}
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:54:28'
+}
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:54:41'
+}
+{
+  service: 'visuallearn-api',
+  level: 'warn',
+  message: 'Failed to initialize Redis rate limiter store, using memory store:',
+  timestamp: '2026-02-27 00:55:43'
+}
