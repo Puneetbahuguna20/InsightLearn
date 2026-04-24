@@ -46,16 +46,24 @@ api.interceptors.response.use(
     // Handle different error types
     if (error.response) {
       // Server responded with error status
-      const { status, data } = error.response
+      const { status, data, config } = error.response;
+      const fullUrl = `${config.baseURL || ''}${config.url}`;
+      
+      console.error(`API Error [${status}] at ${fullUrl}:`, data);
       
       switch (status) {
         case 401:
           // Unauthorized - clear token and redirect to login
           localStorage.removeItem('auth_token')
           toast.error('Session expired. Please log in again.')
-          // You might want to redirect to login page here
           break
           
+        case 404:
+          // Not Found - log specifically for debugging
+          console.error(`404 Error: The endpoint ${config.url} was not found on the server ${config.baseURL}. Please verify deployment.`);
+          toast.error(`Service endpoint not found (404). Please try again later.`);
+          break
+
         case 429:
           // Rate limit exceeded
           toast.error(data.error || 'Too many requests. Please try again later.')

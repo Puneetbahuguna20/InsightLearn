@@ -16,8 +16,23 @@ const Content = require('./models/Content');
 // Middleware
 const { auth, generateToken } = require('./middleware/auth');
 
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://insight-learn.vercel.app',
+    'https://visuallearn.vercel.app',
+    'https://insight-learn.netlify.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Basic middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Connect to MongoDB
@@ -614,16 +629,16 @@ app.post('/api/search/history', auth, async (req, res) => {
     }
 
     const trimmedQuery = query.trim();
-    const normalizedQuery = trimmedQuery.toLowerCase();
-    const normalizedTopic = (topic || trimmedQuery).toLowerCase();
+    const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedTopic = (topic || trimmedQuery).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     // Prevent duplicates by checking for existing history item with same query/topic for this user
     // Using case-insensitive search to prevent duplicates like "quick sort" and "Quick Sort"
     const existing = await SearchHistory.findOne({
       user: req.user._id,
       $or: [
-        { query: { $regex: new RegExp(`^${trimmedQuery}$`, 'i') } },
-        { topic: { $regex: new RegExp(`^${(topic || trimmedQuery)}$`, 'i') } }
+        { query: { $regex: new RegExp(`^${escapedQuery}$`, 'i') } },
+        { topic: { $regex: new RegExp(`^${escapedTopic}$`, 'i') } }
       ]
     });
 
@@ -1093,8 +1108,8 @@ app.post('/api/flashcards/generate', auth, async (req, res) => {
     }
 
     console.log(`🧠 Generating ${refresh ? 'MORE' : 'NEW'} flashcards for: ${topic}`);
-    const aiGenerator = require('./services/aiContentGenerator');
-    const generator = new aiGenerator();
+    const AIContentGenerator = require('./services/aiContentGenerator');
+    const generator = new AIContentGenerator();
     
     // Explicitly ask AI for the distribution
     const promptOverride = `Generate exactly 10 flashcards: 3 easy, 5 medium, and 2 hard ones about the topic: "${topic}".`;
@@ -1491,6 +1506,11 @@ app.get('/api/docs', (req, res) => {
       },
       search: {
         search: { method: 'GET', path: '/api/search', auth: false, query: ['q', 'type', 'page', 'limit'] }
+      },
+      flashcards: {
+        generate: { method: 'POST', path: '/api/flashcards/generate', auth: true },
+        getAll: { method: 'GET', path: '/api/flashcards', auth: true },
+        review: { method: 'POST', path: '/api/flashcards/:id/review', auth: true }
       }
     },
     contentTypes: ['structure', 'process', 'algorithm', 'hierarchy', 'comparison'],
@@ -1687,9 +1707,10 @@ const freeAI = require('./services/freeAIService');
 // ... existing code ...
 
 // Full workflow endpoint - Topic → AI Analysis → Interactive Diagram JSON
-app.post('/api/learn/query', async (req, res) => {
+app.post('/api/learn/query', auth, async (req, res) => {
   try {
     const { query, language = 'en' } = req.body;
+    const userId = req.user._id;
     
     if (!query) {
       return res.status(400).json({
@@ -1700,7 +1721,21 @@ app.post('/api/learn/query', async (req, res) => {
     
     console.log(`🚀 Request received for complete interactive learning generation: "${query}"`);
     
-    // 1. Check if content exists in DB (Cache)
+    // 1. Save to SearchHistory
+    try {
+      const historyItem = new SearchHistory({
+        user: userId,
+        query: query.trim(),
+        topic: query.trim(),
+        category: 'general'
+      });
+      await historyItem.save();
+      console.log('💾 Search history updated');
+    } catch (historyErr) {
+      console.warn('⚠️ Failed to save search history:', historyErr.message);
+    }
+    
+    // 2. Check if content exists in DB (Cache)
     const normalizedQuery = query.toLowerCase().trim();
     
     // TEMPORARY: Bypass cache for "binary search" to allow testing of new prompt
@@ -1824,6 +1859,29 @@ app.post('/api/content/save-generated', auth, async (req, res) => {
       message: 'Failed to save content'
     });
   }
+});
+
+// Diagnostic route to check registered endpoints
+app.get('/api/health/routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods)
+      });
+    } else if (middleware.name === 'router') {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          routes.push({
+            path: handler.route.path,
+            methods: Object.keys(handler.route.methods)
+          });
+        }
+      });
+    }
+  });
+  res.json({ success: true, count: routes.length, routes });
 });
 
 // Catch all other routes
