@@ -10,7 +10,7 @@ const generateToken = (userId) => {
 
 // Authentication middleware
 const auth = async (req, res, next) => {
-  console.log(`🔐 Auth Middleware: Checking token for ${req.method} ${req.url}`);
+  // Silent auth logs to keep console clean, only show warnings/errors
   try {
     const authHeader = req.header('Authorization');
     if (!authHeader) {
@@ -41,7 +41,7 @@ const auth = async (req, res, next) => {
       });
     }
     
-    console.log(`✅ Auth Success: User ${user.username} authenticated`);
+    // User Puneet mentioned auth success logs are too repetitive
     req.user = user;
     next();
   } catch (error) {

@@ -77,19 +77,32 @@ learningProgressSchema.statics.getStudyStreak = async function(userId) {
   const today = currentDate.toDateString();
   const yesterday = new Date(currentDate.getTime() - 86400000).toDateString();
   
-  let checkDate = studiedDates.has(today) ? currentDate : (studiedDates.has(yesterday) ? new Date(currentDate.getTime() - 86400000) : null);
+  let checkDate = null;
   
-  if (!checkDate) {
-    // Even if no activity today/yesterday, if they HAVE history, count it as 1 day
-    return progress.length > 0 ? 1 : 0;
+  if (studiedDates.has(today)) {
+    checkDate = currentDate;
+  } else if (studiedDates.has(yesterday)) {
+    checkDate = new Date(currentDate.getTime() - 86400000);
+  } else {
+    // If no activity today or yesterday, find the most recent study date
+    const mostRecentStudy = progress[0].lastStudied;
+    const mostRecentDate = new Date(mostRecentStudy);
+    mostRecentDate.setHours(0, 0, 0, 0);
+    
+    // Calculate days since most recent study
+    const daysSince = Math.floor((currentDate - mostRecentDate) / 86400000);
+    
+    // If they studied within the last 20 days, count it as day 1, otherwise 0
+    return daysSince <= 20 ? 1 : 0;
   }
   
+  // Count consecutive days backwards from the start date
   while (studiedDates.has(checkDate.toDateString())) {
     streak++;
     checkDate.setDate(checkDate.getDate() - 1);
   }
   
-  return Math.max(streak, 1);
+  return streak; // Remove Math.max to allow 0 for new users
 };
 
 module.exports = mongoose.model('LearningProgress', learningProgressSchema);

@@ -4,9 +4,11 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, GraduationCap, Chrome } from 'lucide-react';
 import { Button, Card, Input } from '../components/ui';
 import { useInsightStore } from '../stores/insightStore';
+import { useTranslation } from '../i18n/LanguageContext';
 import api from '../services/api';
 
 export const LoginPage = () => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -117,14 +119,16 @@ export const LoginPage = () => {
 
             <div>
               <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                error={errors.password}
-                icon={Lock}
-              />
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              error={errors.password}
+              icon={Lock}
+              endIcon={showPassword ? EyeOff : Eye}
+              onEndIconClick={() => setShowPassword(!showPassword)}
+            />
               <div className="flex items-center justify-between mt-2">
                 <label className="flex items-center">
                   <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />

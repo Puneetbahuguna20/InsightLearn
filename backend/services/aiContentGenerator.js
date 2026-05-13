@@ -113,14 +113,14 @@ class AIContentGenerator {
       
       2. If topic is a CONCEPT (Car Engine, Heart, Photosynthesis):
          - type: "concept"
-         - visual: { "representation": "components", "data": ["Part 1", "Part 2", etc] }
+         - visual: { "representation": "components", "data": ["Part 1", "Part 2", "Part 3", "Part 4", "Part 5"] }
          - flowchart: Logical nodes and edges showing the FULL process in detail.
          - example: { 
              "type": "real_world", 
              "content": "A practical real-world scenario or application where this concept is used",
-             "walkthrough": ["Step 1 description", "Step 2 description", ...]
+             "walkthrough": ["Step 1 description", "Step 2 description", "Step 3 description"]
            }
-         - steps: Detailed working process.
+         - steps: Detailed working process with 4-6 granular steps.
       
       REQUIRED JSON FORMAT:
       {
@@ -136,59 +136,26 @@ class AIContentGenerator {
         "example": { 
           "type": "code | real_world", 
           "language": "javascript | python | etc", 
-          "content": "...",
+          "content": "A detailed code implementation (if algorithm) or practical implementation example (if concept)",
           "walkthrough": ["Formatted Step 1 with emoji", "Formatted Step 2 with emoji", ...]
         },
         "steps": [
           { 
             "id": "step_1", 
             "title": "Start", 
-            "explanation": "Initialization and preparation for the algorithm.", 
+            "explanation": "Initialization and preparation for the topic.", 
             "action": "highlight_index:null" 
-          },
-          {
-            "id": "step_2",
-            "title": "Check Sorted",
-            "explanation": "Ensure the array is sorted as binary search only works on sorted data.",
-            "action": "highlight_index:all"
           }
           // ... more granular steps matching flowchart nodes ...
         ],
         "flowchart": {
           "nodes": [
-            { "id": "start", "label": "Start", "type": "input" },
-            { "id": "check", "label": "Check if Sorted" },
-            { "id": "init", "label": "Set low = 0, high = n-1" },
-            { "id": "loop", "label": "Repeat while low <= high" },
-            { "id": "mid", "label": "Find mid = (low + high) / 2" },
-            { "id": "compare", "label": "Compare arr[mid] with target" },
-            { "id": "equal", "label": "Equal?" },
-            { "id": "not_equal", "label": "Not Equal" },
-            { "id": "found", "label": "Return index", "type": "output" },
-            { "id": "less", "label": "Is target < arr[mid]?" },
-            { "id": "yes_left", "label": "Yes (Left Side)" },
-            { "id": "no_right", "label": "No (Right Side)" },
-            { "id": "update_high", "label": "high = mid - 1" },
-            { "id": "update_low", "label": "low = mid + 1" },
-            { "id": "not_found", "label": "Element not found", "type": "output" }
+            { "id": "start", "label": "Start", "type": "input", "explanation": "Starting point", "example": "Context" }
+            // ... 6-10 nodes representing the logic flow ...
           ],
           "edges": [
-            { "source": "start", "target": "check" },
-            { "source": "check", "target": "init" },
-            { "source": "init", "target": "loop" },
-            { "source": "loop", "target": "mid", "label": "Yes" },
-            { "source": "loop", "target": "not_found", "label": "No" },
-            { "source": "mid", "target": "compare" },
-            { "source": "compare", "target": "equal" },
-            { "source": "compare", "target": "not_equal" },
-            { "source": "equal", "target": "found", "label": "Yes" },
-            { "source": "not_equal", "target": "less" },
-            { "source": "less", "target": "yes_left", "label": "Yes" },
-            { "source": "less", "target": "no_right", "label": "No" },
-            { "source": "yes_left", "target": "update_high" },
-            { "source": "no_right", "target": "update_low" },
-            { "source": "update_high", "target": "loop", "label": "Repeat" },
-            { "source": "update_low", "target": "loop", "label": "Repeat" }
+            { "source": "start", "target": "next_node", "label": "Transition" }
+            // ... 5-8 edges connecting nodes ...
           ]
         },
         "result": { "text": "Final outcome/result" },

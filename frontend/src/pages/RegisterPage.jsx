@@ -152,6 +152,8 @@ export const RegisterPage = () => {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 error={errors.password}
                 icon={Lock}
+                endIcon={showPassword ? EyeOff : Eye}
+                onEndIconClick={() => setShowPassword(!showPassword)}
               />
               
               {/* Password Strength */}

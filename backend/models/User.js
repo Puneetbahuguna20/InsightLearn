@@ -44,9 +44,20 @@ const userSchema = new mongoose.Schema({
   },
   interests: [{ type: String }],
   bio: { type: String, maxlength: 200 },
+  // Login Streak Fields
+  lastLogin: { type: Date },
+  loginStreak: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  lastLogin: {
+    type: Date,
+    default: Date.now
+  },
+  streak: {
+    type: Number,
+    default: 0
   },
   updatedAt: {
     type: Date,

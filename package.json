@@ -1,0 +1,32 @@
+{
+  "name": "insight-learn-translator",
+  "version": "1.0.0",
+  "description": "Multi-language translation system for Insight Learn",
+  "main": "translate.js",
+  "scripts": {
+    "translate:hi": "node translate.js en.json hi.json hi",
+    "translate:fr": "node translate.js en.json fr.json fr",
+    "translate:es": "node translate.js en.json es.json es",
+    "translate:all": "npm run translate:hi && npm run translate:fr && npm run translate:es"
+  },
+  "keywords": [
+    "translation",
+    "i18n",
+    "localization",
+    "json",
+    "libretranslate"
+  ],
+  "author": "Insight Learn Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "react-player": "^3.4.0",
+    "youtube-search-api": "^2.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/insight-learn.git"
+  }
+}

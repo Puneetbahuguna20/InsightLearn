@@ -14,6 +14,8 @@ import {
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, Button, Badge, ProgressBar, StatCard, SectionHeader } from '../components/ui';
 import { useInsightStore } from '../stores/insightStore';
+import { useTranslation } from '../i18n/LanguageContext';
+import { useTranslationService } from '../i18n/TranslationService';
 import api from '../services/api';
 
 const containerVariants = {
@@ -31,6 +33,8 @@ const itemVariants = {
 
 export const DashboardPage = () => {
   const { user } = useInsightStore();
+  const { t } = useTranslation();
+  const { translateSearchHistory } = useTranslationService();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const userName = user?.name || 'Guest';
@@ -43,7 +47,14 @@ export const DashboardPage = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await api.get('/user/dashboard');
-      setDashboardData(response.data);
+      const data = response.data;
+      
+      // Translate search history dynamically
+      if (data.searchHistory) {
+        data.searchHistory = await translateSearchHistory(data.searchHistory);
+      }
+      
+      setDashboardData(data);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -63,15 +74,15 @@ export const DashboardPage = () => {
         <motion.div variants={itemVariants} className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Welcome back, {firstName}! 👋
+              {t('dashboard.welcome')}, {firstName}! 👋
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
-              Here's your learning progress today
+              {t('dashboard.progress')}
             </p>
           </div>
           <Link to="/learn">
             <Button icon={BookOpen}>
-              Start Learning
+              {t('navigation.learn')}
             </Button>
           </Link>
         </motion.div>
@@ -79,7 +90,7 @@ export const DashboardPage = () => {
         {/* Stats Grid */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Accuracy Rate"
+            title={t('dashboard.stats.accuracy')}
             value={`${dashboardData?.stats?.quiz?.averageScore?.toFixed(0) || 0}%`}
             change="+5%"
             icon={Target}
@@ -87,7 +98,7 @@ export const DashboardPage = () => {
             trend="up"
           />
           <StatCard
-            title="Quizzes Attempted"
+            title={t('dashboard.stats.quizzes')}
             value={dashboardData?.stats?.quiz?.totalAttempts || 0}
             change="+12 this week"
             icon={TrendingUp}
@@ -95,7 +106,7 @@ export const DashboardPage = () => {
             trend="up"
           />
           <StatCard
-            title="Study Streak"
+            title={t('dashboard.stats.streak')}
             value={`${dashboardData?.stats?.streak || 0} days`}
             change="Keep it up!"
             icon={Flame}
@@ -103,7 +114,7 @@ export const DashboardPage = () => {
             trend="up"
           />
           <StatCard
-            title="Study Time"
+            title={t('dashboard.stats.time')}
             value={(() => {
               const totalMinutes = Math.round(dashboardData?.stats?.learning?.totalStudyTime || 0);
               if (totalMinutes === 0) return '0m';
@@ -115,6 +126,7 @@ export const DashboardPage = () => {
             change="Total"
             icon={Clock}
             color="purple"
+            trend="up"
           />
         </motion.div>
 

@@ -12,6 +12,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useInsightStore } from '../../stores/insightStore';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 export const Navbar = () => {
   const { sidebarOpen, toggleSidebar, toggleTheme, theme, logout, user } = useInsightStore();
@@ -67,6 +68,9 @@ export const Navbar = () => {
               <Sun className="w-5 h-5 text-slate-600 dark:text-slate-400" />
             )}
           </button>
+
+          {/* Language Switcher */}
+          <LanguageSwitcher />
 
           {/* Notifications */}
           <div className="relative">

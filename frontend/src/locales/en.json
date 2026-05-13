@@ -1,0 +1,140 @@
+{
+  "app": {
+    "name": "Insight Learn",
+    "description": "Interactive Learning Platform",
+    "version": "1.0.0"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "learn": "Learn",
+    "quiz": "Quiz",
+    "revision": "Revision",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "progress": "Your learning progress",
+    "stats": {
+      "accuracy": "Accuracy Rate",
+      "quizzes": "Quizzes Attempted",
+      "streak": "Study Streak",
+      "topics": "Topics Started",
+      "completed": "Topics Completed",
+      "time": "Study Time"
+    },
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity found"
+  },
+  "learn": {
+    "title": "Learn New Topics",
+    "placeholder": "Enter a topic to learn",
+    "search": "Search",
+    "examples": [
+      "Photosynthesis",
+      "Machine Learning",
+      "World History",
+      "Mathematics"
+    ],
+    "steps": {
+      "loading": "Loading steps...",
+      "error": "Failed to load steps",
+      "noSteps": "No steps available"
+    },
+    "flow": {
+      "title": "Logic Flow",
+      "description": "Interactive flow diagram"
+    },
+    "explanation": {
+      "title": "Explanation",
+      "placeholder": "Select a step to see explanation"
+    }
+  },
+  "quiz": {
+    "title": "Quiz Time",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium", 
+      "hard": "Hard"
+    },
+    "questions": "Questions",
+    "score": "Score",
+    "time": "Time",
+    "submit": "Submit Quiz",
+    "next": "Next Question",
+    "previous": "Previous Question",
+    "results": {
+      "title": "Quiz Results",
+      "score": "Your Score",
+      "accuracy": "Accuracy",
+      "timeSpent": "Time Spent",
+      "certificate": "Download Certificate"
+    }
+  },
+  "revision": {
+    "title": "Smart Revision",
+    "flashcards": "Flashcards",
+    "generate": "Generate Flashcards",
+    "topic": "Enter Topic",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "progress": {
+      "easy": "Easy",
+      "hard": "Hard",
+      "mastered": "Mastered"
+    },
+    "noFlashcards": "No flashcards available"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "retry": "Retry",
+    "confirm": "Are you sure?",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up"
+    },
+    "register": {
+      "title": "Register",
+      "name": "Full Name",
+      "email": "Email", 
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign In"
+    }
+  },
+  "errors": {
+    "network": "Network error occurred",
+    "server": "Server error occurred",
+    "validation": "Validation error",
+    "notFound": "Data not found",
+    "unauthorized": "Unauthorized access"
+  },
+  "messages": {
+    "saved": "Saved successfully",
+    "deleted": "Deleted successfully", 
+    "updated": "Updated successfully",
+    "loading": "Please wait...",
+    "noData": "No data available"
+  }
+}

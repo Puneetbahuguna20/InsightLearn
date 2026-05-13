@@ -1,0 +1,140 @@
+{
+  "app": {
+    "name": "Insight Learn",
+    "description": "Plateforme d'apprentissage interactif",
+    "version": "1.0.0"
+  },
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "learn": "Apprendre",
+    "quiz": "Quiz",
+    "revision": "Révision",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "welcome": "Bon retour",
+    "progress": "Votre progression d'apprentissage",
+    "stats": {
+      "accuracy": "Taux de précision",
+      "quizzes": "Quiz tentés",
+      "streak": "Série d'étude",
+      "topics": "Sujets commencés",
+      "completed": "Sujets terminés",
+      "time": "Temps d'étude"
+    },
+    "recentActivity": "Activité récente",
+    "noActivity": "Aucune activité récente trouvée"
+  },
+  "learn": {
+    "title": "Apprendre de nouveaux sujets",
+    "placeholder": "Entrez un sujet à apprendre",
+    "search": "Rechercher",
+    "examples": [
+      "Photosynthèse",
+      "Apprentissage automatique",
+      "Histoire mondiale",
+      "Mathématiques"
+    ],
+    "steps": {
+      "loading": "Chargement des étapes...",
+      "error": "Échec du chargement des étapes",
+      "noSteps": "Aucune étape disponible"
+    },
+    "flow": {
+      "title": "Flux logique",
+      "description": "Diagramme de flux interactif"
+    },
+    "explanation": {
+      "title": "Explication",
+      "placeholder": "Sélectionnez une étape pour voir l'explication"
+    }
+  },
+  "quiz": {
+    "title": "Heure du quiz",
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyen", 
+      "hard": "Difficile"
+    },
+    "questions": "Questions",
+    "score": "Score",
+    "time": "Temps",
+    "submit": "Soumettre le quiz",
+    "next": "Question suivante",
+    "previous": "Question précédente",
+    "results": {
+      "title": "Résultats du quiz",
+      "score": "Votre score",
+      "accuracy": "Précision",
+      "timeSpent": "Temps passé",
+      "certificate": "Télécharger le certificat"
+    }
+  },
+  "revision": {
+    "title": "Révision intelligente",
+    "flashcards": "Cartes mémoire",
+    "generate": "Générer des cartes mémoire",
+    "topic": "Entrer le sujet",
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyen",
+      "hard": "Difficile"
+    },
+    "progress": {
+      "easy": "Facile",
+      "hard": "Difficile",
+      "mastered": "Maîtrisé"
+    },
+    "noFlashcards": "Aucune carte mémoire disponible"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "retry": "Réessayer",
+    "confirm": "Êtes-vous sûr ?",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "email": "Email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signUp": "S'inscrire"
+    },
+    "register": {
+      "title": "S'inscrire",
+      "name": "Nom complet",
+      "email": "Email", 
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "S'inscrire",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "signIn": "Se connecter"
+    }
+  },
+  "errors": {
+    "network": "Erreur réseau survenue",
+    "server": "Erreur serveur survenue",
+    "validation": "Erreur de validation",
+    "notFound": "Données non trouvées",
+    "unauthorized": "Accès non autorisé"
+  },
+  "messages": {
+    "saved": "Enregistré avec succès",
+    "deleted": "Supprimé avec succès", 
+    "updated": "Mis à jour avec succès",
+    "loading": "Veuillez patienter...",
+    "noData": "Aucune donnée disponible"
+  }
+}

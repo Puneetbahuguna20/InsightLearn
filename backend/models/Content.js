@@ -21,6 +21,10 @@ const contentSchema = new mongoose.Schema({
     type: String,
     maxlength: 2000
   },
+  summary: {
+    type: String,
+    maxlength: 2000
+  },
   data: {
     type: mongoose.Schema.Types.Mixed,
     required: true

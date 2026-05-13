@@ -27,15 +27,28 @@ const sidebarItems = [
   { icon: Brain, label: 'Quiz', path: '/quiz' },
   { icon: RefreshCw, label: 'Revision Mode', path: '/revision' },
   { icon: MessageCircle, label: 'Doubt Solver', path: '/doubt-solver' },
-  { icon: BarChart3, label: 'Analytics', path: '/analytics' },
   { icon: User, label: 'Profile', path: '/profile' },
 ];
 
 export const Sidebar = () => {
-  const { sidebarOpen, toggleSidebar, logout, historyRefreshTrigger } = useInsightStore();
+  const { sidebarOpen, toggleSidebar, logout, historyRefreshTrigger, user } = useInsightStore();
   const location = useLocation();
   const [history, setHistory] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+  // Add analytics for admin users
+  const filteredSidebarItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+    { icon: BookOpen, label: 'Learn Concept', path: '/learn' },
+    { icon: Brain, label: 'Quiz', path: '/quiz' },
+    { icon: RefreshCw, label: 'Revision Mode', path: '/revision' },
+    { icon: MessageCircle, label: 'Doubt Solver', path: '/doubt-solver' },
+    // Admin-only analytics
+    ...(user && (user.email === 'puneetadmin031@gmail.com' || user.role === 'admin') 
+      ? [{ icon: BarChart3, label: 'Student Analytics', path: '/admin/analytics' }] 
+      : []),
+    { icon: User, label: 'Profile', path: '/profile' },
+  ];
 
   const fetchHistory = async () => {
     try {
@@ -133,7 +146,7 @@ export const Sidebar = () => {
         <nav className="flex-1 p-4 space-y-8 overflow-y-auto custom-scrollbar">
           <div className="space-y-1">
             <h2 className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Main Menu</h2>
-            {sidebarItems.map((item) => (
+            {filteredSidebarItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}

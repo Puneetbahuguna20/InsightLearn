@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { useInsightStore } from '../../stores/insightStore';
 
 export const DashboardLayout = ({ children }) => {

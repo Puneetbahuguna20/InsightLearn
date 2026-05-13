@@ -11,56 +11,65 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import { Search, Target, Clock, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, Target, Clock, Zap, CheckCircle2, AlertCircle, Layers } from 'lucide-react';
+import { useTranslation } from '../i18n/LanguageContext';
 
 // Custom Node Types
-const StepNode = ({ data }) => (
-  <div className={`px-8 py-6 rounded-[2rem] border-4 shadow-2xl min-w-[320px] text-center cursor-pointer transition-all ${
-    data.isActive 
-      ? 'bg-amber-100 border-amber-500 scale-105 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.5)]' 
-      : 'bg-white border-slate-100 hover:border-amber-300'
-  }`}>
-    <div className="flex items-center justify-center gap-3 mb-3">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-lg ${
-        data.isActive ? 'bg-amber-600 text-white' : 'bg-amber-500 text-white'
-      }`}>
-        {data.stepNumber}
+const StepNode = ({ data }) => {
+  const { t, language } = useTranslation();
+  
+  return (
+    <div className={`px-8 py-6 rounded-[2rem] border-4 shadow-2xl min-w-[320px] text-center cursor-pointer transition-all ${
+      data.isActive 
+        ? 'bg-amber-100 border-amber-500 scale-105 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.5)]' 
+        : 'bg-white border-slate-100 hover:border-amber-300'
+    }`}>
+      <div className="flex items-center justify-center gap-3 mb-3">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-lg ${
+          data.isActive ? 'bg-amber-600 text-white' : 'bg-amber-500 text-white'
+        }`}>
+          {data.stepNumber}
+        </div>
+        <span className={`text-xs font-black uppercase tracking-[0.2em] ${
+          data.isActive ? 'text-amber-700' : 'text-slate-400'
+        }`}>{language === 'hi' ? 'चरण' : 'Step'} {data.stepNumber}</span>
       </div>
-      <span className={`text-xs font-black uppercase tracking-[0.2em] ${
-        data.isActive ? 'text-amber-700' : 'text-slate-400'
-      }`}>Step {data.stepNumber}</span>
+      <div className={`text-xl font-black tracking-tight leading-tight ${data.isActive ? 'text-slate-900' : 'text-slate-700'}`}>
+        {data.label}
+      </div>
+      <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
+      <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
     </div>
-    <div className={`text-xl font-black tracking-tight leading-tight ${data.isActive ? 'text-slate-900' : 'text-slate-700'}`}>
-      {data.label}
-    </div>
-    <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
-    <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
-  </div>
-);
+  );
+};
 
-const ProcessNode = ({ data }) => (
-  <div className={`px-8 py-6 rounded-[2rem] border-4 shadow-2xl min-w-[320px] text-center cursor-pointer transition-all ${
-    data.isActive 
-      ? 'bg-amber-100 border-amber-500 scale-105 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.5)]' 
-      : 'bg-white border-slate-100 hover:border-amber-300'
-  }`}>
-    <div className="flex items-center justify-center gap-3 mb-3">
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-lg ${
-        data.isActive ? 'bg-amber-600 text-white' : 'bg-amber-500 text-white'
-      }`}>
-        {data.stepNumber}
+const ProcessNode = ({ data }) => {
+  const { t, language } = useTranslation();
+  
+  return (
+    <div className={`px-8 py-6 rounded-[2rem] border-4 shadow-2xl min-w-[320px] text-center cursor-pointer transition-all ${
+      data.isActive 
+        ? 'bg-amber-100 border-amber-500 scale-105 shadow-[0_20px_50px_-10px_rgba(245,158,11,0.5)]' 
+        : 'bg-white border-slate-100 hover:border-amber-300'
+    }`}>
+      <div className="flex items-center justify-center gap-3 mb-3">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shadow-lg ${
+          data.isActive ? 'bg-amber-600 text-white' : 'bg-amber-500 text-white'
+        }`}>
+          {data.stepNumber}
+        </div>
+        <span className={`text-xs font-black uppercase tracking-[0.2em] ${
+          data.isActive ? 'text-amber-700' : 'text-slate-400'
+        }`}>{language === 'hi' ? 'चरण' : 'Step'} {data.stepNumber}</span>
       </div>
-      <span className={`text-xs font-black uppercase tracking-[0.2em] ${
-        data.isActive ? 'text-amber-700' : 'text-slate-400'
-      }`}>Step {data.stepNumber}</span>
+      <div className={`text-xl font-black tracking-tight leading-tight ${data.isActive ? 'text-slate-900' : 'text-slate-700'}`}>
+        {data.label}
+      </div>
+      <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
+      <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
     </div>
-    <div className={`text-xl font-black tracking-tight leading-tight ${data.isActive ? 'text-slate-900' : 'text-slate-700'}`}>
-      {data.label}
-    </div>
-    <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
-    <Handle type="source" position={Position.Bottom} className="w-3 h-3 !bg-amber-400 border-none shadow-md" />
-  </div>
-);
+  );
+};
 
 const DecisionNode = ({ data }) => (
   <div className={`relative w-44 h-44 flex items-center justify-center group cursor-pointer transition-transform ${
@@ -218,6 +227,7 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
 };
 
 const FlowDiagram = ({ data, onNodeClick, activeNodeId }) => {
+  const { language } = useTranslation();
   const { nodes: rawNodes = [], edges: rawEdges = [] } = data || {};
 
   const { nodes, edges } = useMemo(() => {
@@ -276,12 +286,16 @@ const FlowDiagram = ({ data, onNodeClick, activeNodeId }) => {
   return (
     <div className="w-full h-full bg-slate-50 dark:bg-slate-900/50 relative group">
       <div className="absolute top-8 left-8 z-10 flex items-center gap-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl px-6 py-3 rounded-2xl border-2 border-slate-100 dark:border-slate-700 shadow-2xl">
-        <div className="p-2 bg-indigo-600 rounded-xl shadow-lg shadow-indigo-200">
-          <Zap className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] leading-none mb-1">Interactive</span>
-          <span className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider leading-none">Logic Flow</span>
+        <div className="flex items-center gap-3 px-2">
+          <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+            <Layers className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] leading-none mb-1">Interactive</span>
+            <span className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider leading-none">
+              {language === 'hi' ? 'तार्किक प्रवाह' : 'Logic Flow'}
+            </span>
+          </div>
         </div>
       </div>
 

@@ -7,5 +7,5 @@ export { LearnPage } from './LearnPage';
 export { QuizPage } from './QuizPage';
 export { RevisionPage } from './RevisionPage';
 export { DoubtSolverPage } from './DoubtSolverPage';
-export { AnalyticsPage } from './AnalyticsPage';
 export { ProfilePage } from './ProfilePage';
+export { AdminAnalyticsPage } from './AdminAnalyticsPage';

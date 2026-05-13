@@ -108,6 +108,8 @@ export const Input = ({
   label, 
   error, 
   icon: Icon, 
+  endIcon: EndIcon,
+  onEndIconClick,
   className = '', 
   ...props 
 }) => {
@@ -129,10 +131,20 @@ export const Input = ({
             focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500
             transition-all duration-200
             ${Icon ? 'pl-11' : ''}
+            ${EndIcon ? 'pr-11' : ''}
             ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}
           `}
           {...props}
         />
+        {EndIcon && (
+          <button
+            type="button"
+            onClick={onEndIconClick}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          >
+            <EndIcon className="w-5 h-5 text-slate-400" />
+          </button>
+        )}
       </div>
       {error && (
         <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
@@ -155,6 +167,9 @@ export const StatCard = ({
     amber: 'from-amber-500 to-orange-500',
     red: 'from-red-500 to-pink-500',
     blue: 'from-blue-500 to-cyan-500',
+    purple: 'from-purple-500 to-indigo-500',
+    orange: 'from-orange-500 to-amber-500',
+    green: 'from-green-500 to-emerald-500',
   };
 
   return (

@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
+  BarChart as ReBarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from 'recharts';
+import { 
   User as UserIcon, 
   Mail, 
   Calendar, 
@@ -22,7 +34,8 @@ import {
   Flame,
   Target,
   Zap,
-  BarChart3
+  BarChart3,
+  TrendingUp
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, Button, Badge, ProgressBar, SectionHeader } from '../components/ui';
@@ -49,16 +62,21 @@ export const ProfilePage = () => {
   });
 
   const [certificates, setCertificates] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   const [stats, setStats] = useState({
     totalStudyTime: 0,
     totalTopics: 0,
     accuracy: 0,
     certificates: 0,
-    streak: 0
+    streak: 0,
+    totalAttempts: 0
   });
 
   useEffect(() => {
     fetchProfileData();
+  }, []);
+
+  useEffect(() => {
     // Sync form data with user store if it changes
     if (user) {
       setFormData({
@@ -84,12 +102,14 @@ export const ProfilePage = () => {
       ]);
       
       setCertificates(certsResponse.data.recentCertificates || []);
+      setDashboardData(dashboardResponse.data);
       setStats({
         totalStudyTime: Math.round(dashboardResponse.data?.stats?.learning?.totalStudyTime || 0),
         totalTopics: dashboardResponse.data?.stats?.learning?.totalTopics || 0,
         accuracy: dashboardResponse.data?.stats?.quiz?.averageScore?.toFixed(0) || 0,
         certificates: certsResponse.data.recentCertificates?.length || 0,
-        streak: dashboardResponse.data?.stats?.streak || 0
+        streak: dashboardResponse.data?.stats?.streak || 0,
+        totalAttempts: dashboardResponse.data?.stats?.quiz?.totalAttempts || 0
       });
     } catch (error) {
       console.error('Failed to fetch profile data:', error);
@@ -447,8 +467,82 @@ export const ProfilePage = () => {
           </Card>
         </div>
 
-        {/* Detailed Activity & Achievements */}
+        {/* Learning Insights & Achievements */}
         <div className="grid md:grid-cols-2 gap-6">
+          {/* Performance Charts */}
+          <Card className="p-6 bg-white dark:bg-slate-900 border-none shadow-lg col-span-full">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-900/30">
+                  <TrendingUp className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-widest">Performance Analytics</h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Your learning journey in numbers</p>
+                </div>
+              </div>
+              <Badge variant="indigo" className="px-3 py-1 font-black text-[10px]">REAL-TIME DATA</Badge>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Accuracy Chart */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Quiz Accuracy</h4>
+                  <span className="text-xs font-black text-emerald-500">{stats.accuracy}% Correct</span>
+                </div>
+                <div className="h-48 w-full relative flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Correct', value: parseInt(stats.accuracy), color: '#6366f1' },
+                          { name: 'Incorrect', value: 100 - parseInt(stats.accuracy), color: '#f1f5f9' }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        <Cell fill="#6366f1" />
+                        <Cell fill="#f1f5f9" className="dark:fill-slate-800" />
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-2xl font-black text-slate-900 dark:text-white">{stats.accuracy}%</span>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Overall</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Topic Performance */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Top Interests Accuracy</h4>
+                <div className="space-y-4 pt-2">
+                  {(user?.interests?.slice(0, 3) || ['General']).map((interest, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex justify-between text-[10px] font-black uppercase tracking-tight">
+                        <span className="text-slate-600 dark:text-slate-400">{interest}</span>
+                        <span className="text-indigo-600">{stats.accuracy}%</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${stats.accuracy}%` }}
+                          className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
+
           {/* Learning Insights */}
           <Card className="p-6 bg-white dark:bg-slate-900 border-none shadow-lg">
             <div className="flex items-center gap-3 mb-6">
